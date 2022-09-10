@@ -73,10 +73,13 @@ void lock(boolean lockFlag) {
   http.addHeader("Content-Type", "application/json");
 
   int httpState;
-  if (lockFlag)
+  if (lockFlag) {
     httpState = http.POST("{\"command\": \"lock\"}");
-  else
+    Serial.println("Close SESAME.");
+  } else { 
     httpState = http.POST("{\"command\": \"unlock\"}");
+    Serial.println("Open SESAME.");
+  }
   http.end();
 
   delay(2000);
@@ -90,6 +93,7 @@ void lock(boolean lockFlag) {
  */
 void connectWifi() {
   int counter = 0;
+  Serial.print("Wi-Fi Connecting.");
   while (WiFi.status() != WL_CONNECTED) {
     if (counter % 5 == 0) {
       WiFi.disconnect();
@@ -102,6 +106,7 @@ void connectWifi() {
     delay(900);
     counter++;
   }
+  Serial.println("Wi-Fi Connected.");
 }
 
 
@@ -113,7 +118,8 @@ void setup() {
   delay(1000);
   M5.dis.drawpix(0, CRGB(0, 0, 0));
 
-  Serial.print("Open SESAME v0.1 Copyright (C) m.matsubara");
+  Serial.println("Open SESAME v0.1 Copyright (C) m.matsubara");
+  Serial.println();
 }
 
 
