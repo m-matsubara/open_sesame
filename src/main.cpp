@@ -17,7 +17,7 @@ const uint32_t BUTTON_LONG_PRESS_THRESHOLD = 3000;
 const uint32_t GOING_HOME_THRESHOLD = 600000;
 
 // 帰宅判定時の開錠タイマー(ms)
-const uint32_t UNLOCK_TIMER = 10000;
+const uint32_t UNLOCK_TIMER = 5000;
 
 // loop処理の時刻（loop()関数の中で更新）
 uint32_t timeValue = millis();
@@ -90,17 +90,16 @@ void lock(boolean lockFlag) {
  */
 void connectWifi() {
   int counter = 0;
-  WiFi.begin(SSID.c_str(), SSID_PASSWORD.c_str());
   while (WiFi.status() != WL_CONNECTED) {
+    if (counter % 5 == 0) {
+      WiFi.disconnect();
+      WiFi.begin(SSID.c_str(), SSID_PASSWORD.c_str());
+    }
     Serial.print(".");
     M5.dis.drawpix(0, CRGB(100, 100, 0));
     delay(100);
     M5.dis.drawpix(0, CRGB(0, 0, 0));
     delay(900);
-    if (counter % 10 == 0) {
-      WiFi.disconnect();
-      WiFi.begin(SSID.c_str(), SSID_PASSWORD.c_str());
-    }
     counter++;
   }
 }
@@ -114,14 +113,13 @@ void setup() {
   delay(1000);
   M5.dis.drawpix(0, CRGB(0, 0, 0));
 
-  Serial.print("WiFi connecting.");
+  Serial.print("Open SESAME v0.1 Copyright (C) m.matsubara");
 }
 
 
 void loop() {
   // Wifiが切れていたら接続
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.printf("WiFi Status: %d\n", WiFi.status());
     uint32_t timeConnectStart = millis();  // 接続開始時刻
     connectWifi();  // 接続できない間、ずっと処理を戻さない
     uint32_t timeConnectEnd = millis();  // 接続完了時刻
@@ -143,7 +141,7 @@ void loop() {
 
   if (goingHomeFlag) {
     // 帰宅判定時はみじかく点灯
-    if ((timeValue % 1000) < 100) {
+    if ((timeValue % 1000) < 500) {
       M5.dis.drawpix(0, CRGB(0, 100, 0));
     } else {
       M5.dis.drawpix(0, CRGB(0, 0, 0));
